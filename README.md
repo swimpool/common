@@ -1,5 +1,6 @@
 # Chameleon Widget :: Common
 
+> WidgetGecko develops widgets for the Android home screen replacement [Chameleon Launcher][1]. To learn more about Chameleon, visit their website at [chameleonlauncher.com][1].
 
 ## License
 
