@@ -22,106 +22,140 @@ SOFTWARE.
 
 */
 
+// Current Version: 0.1.5
+
 angular.module('widgetgecko.services', [])
 
   .factory('Chameleon', function ($rootScope) {
 
-    chameleon.widget({
+    var ChameleonService = { };
+    ChameleonService.isChameleon = true;
+    ChameleonService.version = '0.1.5';
 
-      onLoad: function () {
-        $rootScope.$broadcast('chameleon.load');
-      },
+    ChameleonService.init = function (options) {
+      var cs = this;
 
-      onCreate: function () {
-        $rootScope.$broadcast('chameleon.create');
-      },
+      initEventListeners();
 
-      onResume: function () {
-        $rootScope.$broadcast('chameleon.resume');
-      },
+      chameleon.widget({
 
-      onPause: function () {
-        $rootScope.$broadcast('chameleon.pause');
-      },
+        onLoad: function () {
+          cs.broadcastEvent('chameleon.load');
+        },
 
-      onLanguageChanged: function () {
-        $rootScope.$broadcast('chameleon.languageChange');
-      },
+        onCreate: function () {
+          cs.broadcastEvent('chameleon.create');
+        },
 
-      onScrollTop: function () {
-        $rootScope.$broadcast('chameleon.scrollTop');
-      },
+        onResume: function () {
+          cs.broadcastEvent('chameleon.resume');
+        },
 
-      onScrollElsewhere: function () {
-        $rootScope.$broadcast('chameleon.scrollElsewhere');
-      },
+        onPause: function () {
+          cs.broadcastEvent('chameleon.pause');
+        },
 
-      onLayoutModeStart: function () {
-        $rootScope.$broadcast('chameleon.layoutStart');
-      },
+        onLanguageChanged: function () {
+          cs.broadcastEvent('chameleon.languageChange');
+        },
 
-      onLayoutModeComplete:function () {
-        $rootScope.$broadcast('chameleon.layoutComplete');
-      },
+        onScrollTop: function () {
+          cs.broadcastEvent('chameleon.scrollTop');
+        },
 
-      onConnectionAvailableChanged: function (available) {
-        if (available) {
-          $rootScope.$broadcast('chameleon.connect');
+        onScrollElsewhere: function () {
+          cs.broadcastEvent('chameleon.scrollElsewhere');
+        },
+
+        onLayoutModeStart: function () {
+          cs.broadcastEvent('chameleon.layoutStart');
+        },
+
+        onLayoutModeComplete:function () {
+          cs.broadcastEvent('chameleon.layoutComplete');
+        },
+
+        onConnectionAvailableChanged: function (available) {
+          if (available) {
+            cs.broadcastEvent('chameleon.connect');
+          }
+          else {
+            cs.broadcastEvent('chameleon.disconnect');
+          }
+        },
+
+        onConfigure: function () {
+          cs.broadcastEvent('chameleon.configure');
+        },
+
+        onTitleBar: function () {
+          cs.broadcastEvent('chameleon.titlebar');
+        },
+
+        onRefresh: function () {
+          cs.broadcastEvent('chameleon.refresh');
+        },
+
+        onAction: function () {
+          cs.broadcastEvent('chameleon.action');
+        },
+
+        notChameleon: function () {
+          cs.isChameleon = false;
+          cs.broadcastEvent('chameleon.notchameleon');
+        }
+
+      });
+
+    };
+
+    ChameleonService.broadcastEvent = function (event) {
+      $rootScope.$broadcast(event);
+    };
+
+    ChameleonService.isConnected = function () {
+      return chameleon.connected();
+    };
+
+    function initEventListeners() {
+
+      $rootScope.$on('chameleon.polling.start', function (event, data) {
+        chameleon.poll({
+          id: data.id,
+          action: 'start',
+          interval: data.interval * 1000,
+          callback: data.callback
+        });
+      });
+
+      $rootScope.$on('chameleon.polling.stop', function (event, data) {
+        chameleon.poll({
+          id: data.id,
+          action: 'stop'
+        });
+      });
+
+      $rootScope.$on('chameleon.setTitle', function (event, title) {
+        chameleon.setTitle({ text: title });
+      });
+
+      $rootScope.$on('chameleon.openLink', function (event, url) {
+        if (! chameleon.connected()) {
+          return;
+        }
+        if (ChameleonService.isChameleon) {
+          chameleon.intent({
+            action: 'android.intent.action.VIEW',
+            data: url
+          });
         }
         else {
-          $rootScope.$broadcast('chameleon.disconnect');
+          window.open(url);
         }
-      },
-
-      onConfigure: function () {
-        $rootScope.$broadcast('chameleon.configure');
-      },
-
-      onTitleBar: function () {
-        $rootScope.$broadcast('chameleon.titlebar');
-      },
-
-      onRefresh: function () {
-        $rootScope.$broadcast('chameleon.refresh');
-      },
-
-      onAction: function () {
-        $rootScope.$broadcast('chameleon.action');
-      },
-
-      notChameleon: function () {
-        $rootScope.$broadcast('chameleon.notchameleon');
-      }
-
-    });
-
-    $rootScope.$on('chameleon.polling.start', function (event, data) {
-      chameleon.poll({
-        id: data.id,
-        action: 'start',
-        interval: data.interval * 1000,
-        callback: data.callback
       });
-    });
 
-    $rootScope.$on('chameleon.polling.stop', function (event, data) {
-      chameleon.poll({
-        id: data.id,
-        action: 'stop'
-      });
-    });
+    }
 
-    $rootScope.$on('chameleon.setTitle', function (event, title) {
-      chameleon.setTitle({ text: title });
-    });
-
-    $rootScope.$on('chameleon.openLink', function (url) {
-      if (chameleon.connected()) {
-        chameleon.intent({
-          action: 'android.intent.action.VIEW',
-          data: url
-        });
-      }
-    });
+    return ChameleonService;
 
   });

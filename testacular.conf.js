@@ -8,13 +8,15 @@ basePath = '';
 
 // list of files / patterns to load in the browser
 files = [
-  JASMINE,
-  JASMINE_ADAPTER,
+  MOCHA,
+  MOCHA_ADAPTER,
   'js/lib/jquery-1.9.1.js',
   'js/lib/angular.js',
   'js/lib/angular-mocks.js',
   'js/mock/chameleon.js',
   'js/*.js',
+  'js/test/lib/chai.js',
+  'js/test/lib/chai-expect.js',
   'js/test/*.js'
 ];
 
