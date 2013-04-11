@@ -22,7 +22,7 @@ SOFTWARE.
 
 */
 
-// Current Version: 0.1.5
+// Current Version: 0.0.6
 
 angular.module('widgetgecko.services', [])
 
@@ -30,7 +30,7 @@ angular.module('widgetgecko.services', [])
 
     var ChameleonService = { };
     ChameleonService.isChameleon = true;
-    ChameleonService.version = '0.1.5';
+    ChameleonService.version = '0.0.6';
 
     ChameleonService.init = function (options) {
       var cs = this;
@@ -152,6 +152,19 @@ angular.module('widgetgecko.services', [])
         else {
           window.open(url);
         }
+      });
+
+      $rootScope.$on('chameleon.componentExists', function (event, opts) {
+        console.log(opts.component);
+        opts.callback(chameleon.componentExists(opts.component));
+      });
+
+      $rootScope.$on('chameleon.intent', function (event, intent) {
+        chameleon.intent(intent);
+      });
+
+      $rootScope.$on('chameleon.invalidate', function (event) {
+        chameleon.invalidate();
       });
 
     }
